@@ -1,0 +1,4 @@
+Este é meu primeiro código para reconhecimento facial, sendo ele básico e instruido pelo Murtaza's Workshop - Robotics and AI
+https://www.youtube.com/watch?v=iBomaK2ARyI&t=857s
+
+AS IMAGENS E FOTOS PRECISAM TER O TAMANHO DE 216X216
