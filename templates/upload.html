@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Álbum de Figurinhas com IA</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #1e1e2f;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    h1 {
+      color: #00ffff;
+    }
+    input[type="file"] {
+      margin-bottom: 15px;
+      color: #f0f0f0;
+    }
+    button {
+      background-color: #00ffff;
+      color: #1e1e2f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #00bfbf;
+    }
+    img.preview, img.result {
+      margin-top: 20px;
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+    }
+    .mensagem {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Álbum de Figurinhas</h1>
+    <input type="file" id="inputImagem" accept="image/*" onchange="mostrarPreview(event)" required />
+    <br>
+    <button onclick="enviarImagem()">Comparar Figurinha</button>
+
+    <div id="preview-container">
+      <img id="preview" class="preview" src="#" alt="Prévia da Imagem" style="display: none;" />
+    </div>
+
+    <div class="mensagem" id="mensagem"></div>
+    <div id="resultado-container"></div>
+  </div>
+
+  <script>
+    function mostrarPreview(event) {
+      const input = event.target;
+      const preview = document.getElementById('preview');
+
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function enviarImagem() {
+      const input = document.getElementById("inputImagem");
+      const mensagem = document.getElementById("mensagem");
+      const resultado = document.getElementById("resultado-container");
+
+      if (!input.files.length) {
+        mensagem.innerText = "Selecione uma imagem.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("imagem", input.files[0]);
+
+      try {
+        const response = await fetch("http://localhost:5000/comparar_imagem", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          mensagem.innerText = data.mensagem;
+          resultado.innerHTML = `
+            <img src="data:image/jpeg;base64,${data.img}" class="result" alt="Figurinha Encontrada" />
+          `;
+        } else {
+          mensagem.innerText = data.mensagem || "Erro ao processar imagem.";
+          resultado.innerHTML = "";
+        }
+      } catch (error) {
+        console.error("Erro ao enviar imagem:", error);
+        mensagem.innerText = "Erro ao conectar com o servidor.";
+        resultado.innerHTML = "";
+      }
+    }
+  </script>
+</body>
+</html>
